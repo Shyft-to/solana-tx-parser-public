@@ -14,6 +14,7 @@ import {
 	Finality,
 	VersionedMessage,
 	LoadedAddresses,
+	VersionedTransactionResponse,
 } from "@solana/web3.js";
 import * as spl from "@solana/spl-token";
 import { BN, BorshInstructionCoder, Idl, SystemProgram as SystemProgramIdl, SplToken } from "@project-serum/anchor";
@@ -661,7 +662,7 @@ export class SolanaParser {
 					name: parsedIx.name,
 					accounts,
 					programId: instruction.programId,
-					args: parsedIx.data as ParsedIdlArgs<typeof idl, typeof idl["instructions"][number]["name"]>, // as IxArgsMap<typeof idl, typeof idl["instructions"][number]["name"]>,
+					args: parsedIx.data as ParsedIdlArgs<typeof idl, (typeof idl)["instructions"][number]["name"]>, // as IxArgsMap<typeof idl, typeof idl["instructions"][number]["name"]>,
 				};
 			}
 		};
@@ -699,6 +700,24 @@ export class SolanaParser {
 
 			return parser(instruction);
 		}
+	}
+
+	/**
+	 * Parses transaction data along with inner instructions
+	 * @param tx response to parse
+	 * @returns list of parsed instructions
+	 */
+	parseTransactionWithInnerInstructions<T extends VersionedTransactionResponse>(tx: T): ParsedInstruction<Idl, string>[] {
+		const flattened = flattenTransactionResponse(tx);
+
+		return flattened.map(({ parentProgramId, ...ix }) => {
+			const parsedIx = this.parseInstruction(ix);
+			if (parentProgramId && parsedIx.args) {
+				parsedIx.parentProgramId = parentProgramId;
+			}
+
+			return parsedIx;
+		});
 	}
 
 	/**

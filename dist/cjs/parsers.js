@@ -646,6 +646,21 @@ class SolanaParser {
         }
     }
     /**
+     * Parses transaction data along with inner instructions
+     * @param tx response to parse
+     * @returns list of parsed instructions
+     */
+    parseTransactionWithInnerInstructions(tx) {
+        const flattened = (0, helpers_1.flattenTransactionResponse)(tx);
+        return flattened.map(({ parentProgramId, ...ix }) => {
+            const parsedIx = this.parseInstruction(ix);
+            if (parentProgramId && parsedIx.args) {
+                parsedIx.parentProgramId = parentProgramId;
+            }
+            return parsedIx;
+        });
+    }
+    /**
      * Parses transaction data
      * @param txMessage message to parse
      * @param altLoadedAddresses VersionedTransaction.meta.loaddedAddresses if tx is versioned

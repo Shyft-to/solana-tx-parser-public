@@ -60,6 +60,7 @@ export type UnknownInstruction = {
 	args: { unknown: unknown };
 	accounts: ParsedAccount[];
 	programId: PublicKey;
+	parentProgramId?: PublicKey;
 };
 
 export type ParsedInstruction<I extends Idl, IxName extends InstructionNames<I> = InstructionNames<I>> =
@@ -71,6 +72,7 @@ export interface ParsedCustomInstruction {
 	/** Instruction name */
 	name: string;
 	programId: PublicKey;
+	parentProgramId?: PublicKey;
 	/** Parsed arguments */
 	args: unknown;
 	/** Parsed accounts */
@@ -81,6 +83,7 @@ export interface ParsedIdlInstruction<I extends Idl, IxName extends InstructionN
 	/** Instruction name */
 	name: IxName;
 	programId: PublicKey;
+	parentProgramId?: PublicKey;
 	/** Parsed arguments */
 	args: ParsedIdlArgs<I, IxName>;
 	/** Parsed accounts */

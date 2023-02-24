@@ -109,7 +109,11 @@ function flattenTransactionResponse(transaction) {
             result.push(compiledInstructionToInstruction(txInstructions[lastPushedIx], accountsMeta));
         }
         for (const CIIEntry of CII.instructions) {
-            result.push(compiledInstructionToInstruction(CIIEntry, accountsMeta));
+            const parentProgramId = accountsMeta[txInstructions[lastPushedIx].programIdIndex].pubkey;
+            result.push({
+                ...compiledInstructionToInstruction(CIIEntry, accountsMeta),
+                parentProgramId,
+            });
             callIndex += 1;
         }
     }

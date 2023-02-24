@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Buffer } from "buffer";
-import { PublicKey, TransactionInstruction, Connection, Message, ParsedMessage, Finality, VersionedMessage, LoadedAddresses } from "@solana/web3.js";
+import { PublicKey, TransactionInstruction, Connection, Message, ParsedMessage, Finality, VersionedMessage, LoadedAddresses, VersionedTransactionResponse } from "@solana/web3.js";
 import { Idl } from "@project-serum/anchor";
 import { InstructionNames, InstructionParserInfo, ParsedInstruction, ParserFunction, ProgramInfoType } from "./interfaces";
 /**
@@ -46,6 +46,12 @@ export declare class SolanaParser {
      * @returns parsed transaction instruction or UnknownInstruction
      */
     parseInstruction<I extends Idl, IxName extends InstructionNames<I>>(instruction: TransactionInstruction): ParsedInstruction<I, IxName>;
+    /**
+     * Parses transaction data along with inner instructions
+     * @param tx response to parse
+     * @returns list of parsed instructions
+     */
+    parseTransactionWithInnerInstructions<T extends VersionedTransactionResponse>(tx: T): ParsedInstruction<Idl, string>[];
     /**
      * Parses transaction data
      * @param txMessage message to parse

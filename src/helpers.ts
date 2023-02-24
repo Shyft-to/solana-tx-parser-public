@@ -1,4 +1,4 @@
-import { utils } from "@project-serum/anchor";
+import { Idl, utils } from "@project-serum/anchor";
 import {
 	AccountMeta,
 	CompiledInstruction,
@@ -12,7 +12,7 @@ import {
 	VersionedTransactionResponse,
 } from "@solana/web3.js";
 
-import { LogContext } from "./interfaces";
+import { InstructionNames, LogContext, ParsedInstruction } from "./interfaces";
 
 export function hexToBuffer(data: string) {
 	const rawHex = data.startsWith("0x") ? data.slice(2) : data;
@@ -116,8 +116,8 @@ export function parsedInstructionToInstruction(parsedInstruction: PartiallyDecod
  * @param transaction transactionResponse to convert from
  * @returns Transaction object
  */
-export function flattenTransactionResponse(transaction: VersionedTransactionResponse): TransactionInstruction[] {
-	const result: TransactionInstruction[] = [];
+export function flattenTransactionResponse(transaction: VersionedTransactionResponse): (TransactionInstruction & { parentProgramId?: PublicKey })[] {
+	const result: (TransactionInstruction & { parentProgramId?: PublicKey })[] = [];
 	if (transaction === null || transaction === undefined) return [];
 	const txInstructions = transaction.transaction.message.compiledInstructions;
 	const accountsMeta = parseTransactionAccounts(transaction.transaction.message, transaction.meta?.loadedAddresses);
@@ -134,7 +134,11 @@ export function flattenTransactionResponse(transaction: VersionedTransactionResp
 			result.push(compiledInstructionToInstruction(txInstructions[lastPushedIx], accountsMeta));
 		}
 		for (const CIIEntry of CII.instructions) {
-			result.push(compiledInstructionToInstruction(CIIEntry, accountsMeta));
+			const parentProgramId = accountsMeta[txInstructions[lastPushedIx].programIdIndex].pubkey;
+			result.push({
+				...compiledInstructionToInstruction(CIIEntry, accountsMeta),
+				parentProgramId,
+			});
 			callIndex += 1;
 		}
 	}
