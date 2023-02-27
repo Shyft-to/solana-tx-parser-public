@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Buffer } from "buffer";
-import { PublicKey, TransactionInstruction, Connection, Message, ParsedMessage, Finality, VersionedMessage, LoadedAddresses, VersionedTransactionResponse } from "@solana/web3.js";
+import { PublicKey, TransactionInstruction, Connection, Message, ParsedMessage, ParsedInstruction as SolanaParsedInstruction, Finality, VersionedMessage, LoadedAddresses, VersionedTransactionResponse, ParsedTransactionWithMeta } from "@solana/web3.js";
 import { Idl } from "@project-serum/anchor";
 import { InstructionNames, InstructionParserInfo, ParsedInstruction, ParserFunction, ProgramInfoType } from "./interfaces";
 /**
@@ -65,6 +65,13 @@ export declare class SolanaParser {
      * @returns list of parsed instructions
      */
     parseTransactionParsedData(txParsedMessage: ParsedMessage): ParsedInstruction<Idl, string>[];
+    /**
+     * Parses transaction data retrieved from Connection.getParsedTransaction along with the inner instructions
+     * @param txParsedMessage message to parse
+     * @returns list of parsed instructions
+     */
+    parseParsedTransactionWithInnerInstructions(txn: ParsedTransactionWithMeta): ParsedInstruction<Idl, string>[];
+    convertSolanaParsedInstruction(instruction: SolanaParsedInstruction): ParsedInstruction<Idl, string>;
     /**
      * Fetches tx from blockchain and parses it
      * @param connection web3 Connection

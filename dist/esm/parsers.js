@@ -3,7 +3,7 @@ import { PublicKey, SystemInstruction, SystemProgram, Transaction, } from "@sola
 import * as spl from "@solana/spl-token";
 import { BN, BorshInstructionCoder } from "@project-serum/anchor";
 import { blob, struct, u8 } from "@solana/buffer-layout";
-import { compiledInstructionToInstruction, flattenTransactionResponse, parsedInstructionToInstruction, parseTransactionAccounts } from "./helpers";
+import { compiledInstructionToInstruction, flattenParsedTransaction, flattenTransactionResponse, parsedInstructionToInstruction, parseTransactionAccounts, } from "./helpers";
 function decodeSystemInstruction(instruction) {
     const ixType = SystemInstruction.decodeInstructionType(instruction);
     let parsed;
@@ -650,7 +650,7 @@ export class SolanaParser {
         const flattened = flattenTransactionResponse(tx);
         return flattened.map(({ parentProgramId, ...ix }) => {
             const parsedIx = this.parseInstruction(ix);
-            if (parentProgramId && parsedIx.args) {
+            if (parentProgramId) {
                 parsedIx.parentProgramId = parentProgramId;
             }
             return parsedIx;
@@ -678,6 +678,40 @@ export class SolanaParser {
             pubkey: metaLike.pubkey,
         }));
         return txParsedMessage.instructions.map((parsedIx) => this.parseInstruction(parsedInstructionToInstruction(parsedIx, parsedAccounts)));
+    }
+    /**
+     * Parses transaction data retrieved from Connection.getParsedTransaction along with the inner instructions
+     * @param txParsedMessage message to parse
+     * @returns list of parsed instructions
+     */
+    parseParsedTransactionWithInnerInstructions(txn) {
+        const allInstructions = flattenParsedTransaction(txn);
+        const parsedAccounts = txn.transaction.message.accountKeys.map((metaLike) => ({
+            isSigner: metaLike.signer,
+            isWritable: metaLike.writable,
+            pubkey: metaLike.pubkey,
+        }));
+        return allInstructions.map(({ parentProgramId, ...instruction }) => {
+            let parsedIns;
+            if ("data" in instruction) {
+                parsedIns = this.parseInstruction(parsedInstructionToInstruction(instruction, parsedAccounts));
+            }
+            else {
+                parsedIns = this.convertSolanaParsedInstruction(instruction);
+            }
+            if (parentProgramId) {
+                parsedIns.parentProgramId = parentProgramId;
+            }
+            return parsedIns;
+        });
+    }
+    convertSolanaParsedInstruction(instruction) {
+        const parsed = instruction.parsed;
+        return {
+            name: parsed.type,
+            programId: instruction.programId,
+            info: parsed.info,
+        };
     }
     /**
      * Fetches tx from blockchain and parses it

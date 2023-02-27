@@ -1,10 +1,12 @@
-import { Idl, utils } from "@project-serum/anchor";
+import { utils } from "@project-serum/anchor";
 import {
 	AccountMeta,
 	CompiledInstruction,
 	LoadedAddresses,
 	Message,
 	MessageCompiledInstruction,
+	ParsedInstruction as SolanaParsedInstruction,
+	ParsedTransactionWithMeta,
 	PartiallyDecodedInstruction,
 	PublicKey,
 	TransactionInstruction,
@@ -12,7 +14,7 @@ import {
 	VersionedTransactionResponse,
 } from "@solana/web3.js";
 
-import { InstructionNames, LogContext, ParsedInstruction } from "./interfaces";
+import { LogContext } from "./interfaces";
 
 export function hexToBuffer(data: string) {
 	const rawHex = data.startsWith("0x") ? data.slice(2) : data;
@@ -146,6 +148,46 @@ export function flattenTransactionResponse(transaction: VersionedTransactionResp
 		lastPushedIx += 1;
 		callIndex += 1;
 		result.push(compiledInstructionToInstruction(txInstructions[lastPushedIx], accountsMeta));
+	}
+
+	return result;
+}
+
+export function flattenParsedTransaction(
+	transaction: ParsedTransactionWithMeta,
+): ((SolanaParsedInstruction | PartiallyDecodedInstruction) & { parentProgramId?: PublicKey })[] {
+	const result: ((SolanaParsedInstruction | PartiallyDecodedInstruction) & { parentProgramId?: PublicKey })[] = [];
+
+	if (!transaction) {
+		return result;
+	}
+
+	const txInstructions = transaction.transaction.message.instructions;
+	const orderedCII = (transaction?.meta?.innerInstructions || []).sort((a, b) => a.index - b.index);
+	const totalCalls =
+		(transaction.meta?.innerInstructions || []).reduce((accumulator, cii) => accumulator + cii.instructions.length, 0) + txInstructions.length;
+	let lastPushedIx = -1;
+	let callIndex = -1;
+	for (const CII of orderedCII) {
+		// push original instructions until we meet CPI
+		while (lastPushedIx !== CII.index) {
+			lastPushedIx += 1;
+			callIndex += 1;
+			result.push(txInstructions[lastPushedIx]);
+		}
+		for (const CIIEntry of CII.instructions) {
+			const parentProgramId = txInstructions[lastPushedIx].programId;
+			result.push({
+				...CIIEntry,
+				parentProgramId,
+			});
+			callIndex += 1;
+		}
+	}
+	while (callIndex < totalCalls - 1) {
+		lastPushedIx += 1;
+		callIndex += 1;
+		result.push(txInstructions[lastPushedIx]);
 	}
 
 	return result;
