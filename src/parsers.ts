@@ -796,9 +796,9 @@ export class SolanaParser {
 
 		if (instruction.programId.toBase58() === MEMO_PROGRAM_V2) {
 			return {
-				name: instruction.program,
+				name: "Memo",
 				programId: instruction.programId,
-				info: parsed,
+				info: { message: parsed },
 			};
 		}
 
