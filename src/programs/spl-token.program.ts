@@ -602,4 +602,3 @@ export declare type SplToken = {
 		},
 	];
 };
-export declare const IDL: SplToken;
