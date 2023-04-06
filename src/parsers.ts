@@ -799,14 +799,16 @@ export class SolanaParser {
 			return {
 				name: "Memo",
 				programId: instruction.programId,
-				info: { message: parsed },
+				args: { message: parsed },
+				accounts: [],
 			};
 		}
 
 		return {
 			name: parsed.type,
 			programId: instruction.programId,
-			info: parsed.info,
+			args: parsed.info,
+			accounts: [],
 		};
 	}
 
