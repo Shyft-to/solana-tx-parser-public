@@ -719,12 +719,7 @@ export class SolanaParser {
 					instructionData: instruction.data.toString("hex"),
 				});
 
-				return {
-					name: "unknown",
-					programId: instruction.programId,
-					args: { unknown: instruction.data },
-					accounts: instruction.keys,
-				} as UnknownInstruction;
+				return this.buildUnknownParsedInstruction(instruction.programId, instruction.keys, instruction.data);
 			}
 		}
 	}
