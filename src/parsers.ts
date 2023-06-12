@@ -680,7 +680,7 @@ export class SolanaParser {
 			}
 		};
 
-		return [programId.toBase58(), idlParser.bind(this)];
+		return [programId, idlParser.bind(this)];
 	}
 
 	/**
