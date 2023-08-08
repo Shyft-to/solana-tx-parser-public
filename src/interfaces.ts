@@ -1,4 +1,4 @@
-import { BN, BorshInstructionCoder, Idl, IdlTypes } from "@project-serum/anchor";
+import { BN, BorshInstructionCoder, Idl, IdlTypes } from "@coral-xyz/anchor";
 import { AccountMeta, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 
 /**

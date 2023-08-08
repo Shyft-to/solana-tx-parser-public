@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Buffer } from "buffer";
 import { PublicKey, TransactionInstruction, Connection, Message, ParsedMessage, ParsedInstruction as SolanaParsedInstruction, Finality, VersionedMessage, LoadedAddresses, VersionedTransactionResponse, ParsedTransactionWithMeta } from "@solana/web3.js";
-import { Idl } from "@project-serum/anchor";
+import { Idl } from "@coral-xyz/anchor";
 import { InstructionNames, InstructionParserInfo, ParsedInstruction, ParserFunction, ProgramInfoType } from "./interfaces";
 /**
  * Class for parsing arbitrary solana transactions in various formats
@@ -13,6 +13,7 @@ import { InstructionNames, InstructionParserInfo, ParsedInstruction, ParserFunct
  */
 export declare class SolanaParser {
     private instructionParsers;
+    private instructionDecoders;
     /**
      * Initializes parser object
      * `SystemProgram`, `TokenProgram` and `AssociatedTokenProgram` are supported by default

@@ -2,7 +2,7 @@
 import "mocha";
 import assert from "assert";
 
-import { BN, Idl } from "@project-serum/anchor";
+import { BN, Idl } from "@coral-xyz/anchor";
 import { PublicKey, Connection } from "@solana/web3.js";
 
 import { SolanaParser } from "../src";
@@ -51,7 +51,7 @@ function printParsedIx(parsedIx: ParsedInstruction<Idl>) {
 
 function parseTransactionTest() {
 	it("can parse jupiter tx", async () => {
-		const rpcConnection = new Connection("https://jupiter.genesysgo.net");
+		const rpcConnection = new Connection("https://api.mainnet-beta.solana.com");
 		const txParser = new SolanaParser([{ idl: JupiterIdl as unknown as Idl, programId: "JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo" }]);
 		const parsed = await txParser.parseTransaction(
 			rpcConnection,

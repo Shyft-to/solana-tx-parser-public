@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import { PublicKey, SystemInstruction, SystemProgram, Transaction, } from "@solana/web3.js";
 import * as spl from "@solana/spl-token";
-import { BN, BorshInstructionCoder } from "@project-serum/anchor";
+import { BN, BorshInstructionCoder } from "@coral-xyz/anchor";
 import { blob, struct, u8 } from "@solana/buffer-layout";
 import { compiledInstructionToInstruction, flattenParsedTransaction, flattenTransactionResponse, parsedInstructionToInstruction, parseTransactionAccounts, } from "./helpers";
 const MEMO_PROGRAM_V1 = "Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo";
@@ -535,7 +535,8 @@ export class SolanaParser {
      * @param parsers list of pairs (programId, custom parser)
      */
     constructor(programInfos, parsers) {
-        const standartParsers = [
+        this.instructionDecoders = new Map();
+        const standardParsers = [
             [SystemProgram.programId.toBase58(), decodeSystemInstruction],
             [spl.TOKEN_PROGRAM_ID.toBase58(), decodeTokenInstruction],
             [spl.ASSOCIATED_TOKEN_PROGRAM_ID.toBase58(), decodeAssociatedTokenInstruction],
@@ -543,21 +544,22 @@ export class SolanaParser {
         let result;
         parsers = parsers || [];
         for (const programInfo of programInfos) {
-            parsers.push(this.buildIdlParser(new PublicKey(programInfo.programId), programInfo.idl));
+            this.addParserFromIdl(new PublicKey(programInfo.programId), programInfo.idl);
         }
         if (!parsers) {
-            result = new Map(standartParsers);
+            result = new Map(standardParsers);
         }
         else {
             // first set provided parsers
             result = new Map(parsers);
             // append standart parsers if parser not exist yet
-            for (const parserInfo of standartParsers) {
+            for (const parserInfo of standardParsers) {
                 if (!result.has(parserInfo[0])) {
                     result.set(...parserInfo);
                 }
             }
         }
+        console.log({ parsers, result });
         this.instructionParsers = result;
     }
     /**
@@ -574,12 +576,12 @@ export class SolanaParser {
      * @param idl IDL that describes anchor program
      */
     addParserFromIdl(programId, idl) {
-        this.instructionParsers.set(...this.buildIdlParser(new PublicKey(programId), idl));
+        this.instructionDecoders.set(programId, new BorshInstructionCoder(idl));
+        this.instructionParsers.set(...this.buildIdlParser(programId, idl));
     }
     buildIdlParser(programId, idl) {
-        const idlParser = (instruction) => {
-            const coder = new BorshInstructionCoder(idl);
-            const parsedIx = coder.decode(instruction.data);
+        const idlParser = (instruction, decoder) => {
+            const parsedIx = decoder === null || decoder === void 0 ? void 0 : decoder.decode(instruction.data);
             if (!parsedIx) {
                 return this.buildUnknownParsedInstruction(instruction.programId, instruction.keys, instruction.data);
             }
@@ -612,7 +614,7 @@ export class SolanaParser {
                 };
             }
         };
-        return [programId.toBase58(), idlParser.bind(this)];
+        return [programId, idlParser.bind(this)];
     }
     /**
      * Removes parser for provided program id
@@ -639,8 +641,19 @@ export class SolanaParser {
             return this.buildUnknownParsedInstruction(instruction.programId, instruction.keys, instruction.data);
         }
         else {
-            const parser = this.instructionParsers.get(instruction.programId.toBase58());
-            return parser(instruction);
+            try {
+                const parser = this.instructionParsers.get(instruction.programId.toBase58());
+                const decoder = this.instructionDecoders.get(instruction.programId.toBase58());
+                return parser(instruction, decoder);
+            }
+            catch (error) {
+                // eslint-disable-next-line no-console
+                console.error("Parser does not matching the instruction args", {
+                    programId: instruction.programId.toBase58(),
+                    instructionData: instruction.data.toString("hex"),
+                });
+                return this.buildUnknownParsedInstruction(instruction.programId, instruction.keys, instruction.data);
+            }
         }
     }
     /**

@@ -19,7 +19,7 @@ import {
 	ParsedTransactionWithMeta,
 } from "@solana/web3.js";
 import * as spl from "@solana/spl-token";
-import { BN, BorshInstructionCoder, Idl, SystemProgram as SystemProgramIdl } from "@project-serum/anchor";
+import { BN, BorshInstructionCoder, Idl, SystemProgram as SystemProgramIdl } from "@coral-xyz/anchor";
 import { blob, struct, u8 } from "@solana/buffer-layout";
 
 import { SplToken } from "./programs/spl-token.program";
@@ -621,7 +621,7 @@ export class SolanaParser {
 				}
 			}
 		}
-
+		console.log({parsers, result})
 		this.instructionParsers = result;
 	}
 

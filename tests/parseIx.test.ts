@@ -1,7 +1,7 @@
 import "mocha";
 import assert from "assert";
 
-import { SplToken } from "@project-serum/anchor";
+import { SplToken } from "../src/programs/spl-token.program";
 import { TransactionInstruction, Keypair } from "@solana/web3.js";
 import * as spl from "@solana/spl-token";
 
