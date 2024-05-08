@@ -849,7 +849,7 @@ function decodeToken2022Instruction(instruction: TransactionInstruction): Parsed
 			break;
 		}
 		case spl.TokenInstruction.AmountToUiAmount: {
-			const decodedIx = spl.decodeAmountToUiAmountInstruction(instruction);
+			const decodedIx = spl.decodeAmountToUiAmountInstruction(instruction, spl.TOKEN_2022_PROGRAM_ID);
 			const tokenMint = decodedIx.keys.mint;
 			if (!tokenMint) throw new Error(`Failed to parse AmountToUiAmount instruction`);
 			parsed = {
@@ -860,7 +860,7 @@ function decodeToken2022Instruction(instruction: TransactionInstruction): Parsed
 			break;
 		}
 		case spl.TokenInstruction.UiAmountToAmount: {
-			const decodedIx = spl.decodeUiAmountToAmountInstruction(instruction);
+			const decodedIx = spl.decodeUiAmountToAmountInstruction(instruction, spl.TOKEN_2022_PROGRAM_ID);
 			const tokenMint = decodedIx.keys.mint;
 			if (!tokenMint) throw new Error(`Failed to parse UiAmountToAmount instruction`);
 			parsed = {
