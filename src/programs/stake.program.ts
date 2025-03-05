@@ -1,320 +1,13 @@
-export declare type StakeLayout = {
-	version: "1.0.0";
-	name: "stake_program";
-	instructions: [
-		{
-			name: "initialize";
-			accounts: [
-				{
-					name: "stakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "clockSysvar";
-					isMut: true;
-					isSigner: false;
-				},
-			];
-			args: [
-				{
-					name: "index";
-					type: "u32";
-				},
-				{
-					name: "authorized";
-					type: {
-						defined: "AuthorizedType";
-					};
-				},
-				{
-					name: "lockup";
-					type: {
-						defined: "COption<LockupType>";
-					};
-				},
-			];
-		},
-		{
-			name: "authorize";
-			accounts: [
-				{
-					name: "stakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "clockSysvar";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "authorizedPubkey";
-					isMut: false;
-					isSigner: true;
-				},
-				{
-					name: "custodianPubkey";
-					isMut: false;
-					isSigner: true;
-					optional: true;
-				},
-			];
-			args: [
-				{
-					name: "index";
-					type: "u32";
-				},
-				{
-					name: "newAuthorized";
-					type: "publicKey";
-				},
-				{
-					name: "stakeAuthorizationType";
-					type: {
-						defined: "StakeAuthorizationType";
-					};
-				},
-			];
-		},
-		{
-			name: "authorizeWithSeed";
-			accounts: [
-				{
-					name: "stakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "authorizedPubkey";
-					isMut: false;
-					isSigner: true;
-				},
-				{
-					name: "clockSysvar";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "custodianPubkey";
-					isMut: false;
-					isSigner: true;
-					optional: true;
-				},
-			];
-			args: [
-				{
-					name: "index";
-					type: "u32";
-				},
-				{
-					name: "newAuthorized";
-					type: "publicKey";
-				},
-				{
-					name: "stakeAuthorizationType";
-					type: {
-						defined: "StakeAuthorizationType";
-					};
-				},
-				{
-					name: "authoritySeed";
-					type: "string";
-				},
-				{
-					name: "authorityOwner";
-					type: "publicKey";
-				},
-			];
-		},
-		{
-			name: "deactivate";
-			accounts: [
-				{
-					name: "stakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "clockSysvar";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "authorizedPubkey";
-					isMut: false;
-					isSigner: true;
-				},
-			];
-			args: [
-				{
-					name: "index";
-					type: "u32";
-				},
-				{
-					name: "stakePubkey";
-					type: "publicKey";
-				},
-				{
-					name: "authorizedPubkey";
-					type: "publicKey";
-				},
-			];
-		},
-		{
-			name: "delegate";
-			accounts: [
-				{
-					name: "stakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "votePubkey";
-					isMut: false;
-					isSigner: false;
-				},
-				{
-					name: "clockSysvar";
-					isMut: false;
-					isSigner: false;
-				},
-				{
-					name: "sysvarStakeHistory";
-					isMut: false;
-					isSigner: false;
-				},
-				{
-					name: "stakeConfig";
-					isMut: false;
-					isSigner: false;
-				},
-				{
-					name: "authorizedPubkey";
-					isMut: false;
-					isSigner: true;
-				},
-			];
-			args: [
-				{
-					name: "index";
-					type: "u32";
-				},
-			];
-		},
-		{
-			name: "merge";
-			accounts: [
-				{
-					name: "stakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "sourceStakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "clockSysvar";
-					isMut: false;
-					isSigner: false;
-				},
-				{
-					name: "sysvarStakeHistory";
-					isMut: false;
-					isSigner: false;
-				},
-				{
-					name: "authorizedPubkey";
-					isMut: false;
-					isSigner: true;
-				},
-			];
-			args: [
-				{
-					name: "index";
-					type: "u32";
-				},
-			];
-		},
-		{
-			name: "split";
-			accounts: [
-				{
-					name: "stakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "splitStakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "authorizedPubkey";
-					isMut: false;
-					isSigner: true;
-				},
-			];
-			args: [
-				{
-					name: "index";
-					type: "u32";
-				},
-				{
-					name: "lamports";
-					type: "u64";
-				},
-			];
-		},
-		{
-			name: "withdraw";
-			accounts: [
-				{
-					name: "stakePubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "toPubkey";
-					isMut: true;
-					isSigner: false;
-				},
-				{
-					name: "clockSysvar";
-					isMut: false;
-					isSigner: false;
-				},
-				{
-					name: "sysvarStakeHistory";
-					isMut: false;
-					isSigner: false;
-				},
-				{
-					name: "authorizedPubkey";
-					isMut: false;
-					isSigner: true;
-				},
-				{
-					name: "custodianPubkey";
-					isMut: false;
-					isSigner: true;
-					optional: true;
-				},
-			];
-			args: [
-				{
-					name: "index";
-					type: "u32";
-				},
-				{
-					name: "lamports";
-					type: "u64";
-				},
-			];
-		},
-	];
+export declare type StakeProgram = {
+	address: "Stake11111111111111111111111111111111111111";
+	metadata: {
+		name: "stakeProgram";
+		version: "1.0.0";
+		spec: "0.1.0";
+	};
+	constants: [];
+	errors: [];
+	accounts: [];
 	types: [
 		{
 			name: "AuthorizedType";
@@ -323,11 +16,11 @@ export declare type StakeLayout = {
 				fields: [
 					{
 						name: "staker";
-						type: "publicKey";
+						type: "pubkey";
 					},
 					{
 						name: "withdrawer";
-						type: "publicKey";
+						type: "pubkey";
 					},
 				];
 			};
@@ -347,7 +40,7 @@ export declare type StakeLayout = {
 					},
 					{
 						name: "custodian";
-						type: "publicKey";
+						type: "pubkey";
 					},
 				];
 			};
@@ -363,6 +56,328 @@ export declare type StakeLayout = {
 					},
 				];
 			};
+		},
+	];
+	instructions: [
+		{
+			discriminator: [0];
+			accounts: [
+				{
+					name: "stakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "clockSysvar";
+					writable: true;
+					signer: false;
+				},
+			];
+			name: "initialize";
+			args: [
+				{
+					name: "index";
+					type: "u32";
+				},
+				{
+					name: "authorized";
+					type: {
+						defined: { generics: []; name: "AuthorizedType" };
+					};
+				},
+				{
+					name: "lockup";
+					type: {
+						defined: { generics: []; name: "COption<LockupType>" };
+					};
+				},
+			];
+		},
+		{
+			discriminator: [1];
+			accounts: [
+				{
+					name: "stakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "clockSysvar";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "authorizedPubkey";
+					writable: false;
+					signer: true;
+				},
+				{
+					name: "custodianPubkey";
+					writable: false;
+					signer: true;
+					optional: true;
+				},
+			];
+			name: "authorize";
+			args: [
+				{
+					name: "index";
+					type: "u32";
+				},
+				{
+					name: "newAuthorized";
+					type: "pubkey";
+				},
+				{
+					name: "stakeAuthorizationType";
+					type: {
+						defined: { generics: []; name: "StakeAuthorizationType" };
+					};
+				},
+			];
+		},
+		{
+			discriminator: [2];
+			accounts: [
+				{
+					name: "stakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "authorizedPubkey";
+					writable: false;
+					signer: true;
+				},
+				{
+					name: "clockSysvar";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "custodianPubkey";
+					writable: false;
+					signer: true;
+					optional: true;
+				},
+			];
+			name: "authorizeWithSeed";
+			args: [
+				{
+					name: "index";
+					type: "u32";
+				},
+				{
+					name: "newAuthorized";
+					type: "pubkey";
+				},
+				{
+					name: "stakeAuthorizationType";
+					type: {
+						defined: { generics: []; name: "StakeAuthorizationType" };
+					};
+				},
+				{
+					name: "authoritySeed";
+					type: "string";
+				},
+				{
+					name: "authorityOwner";
+					type: "pubkey";
+				},
+			];
+		},
+		{
+			discriminator: [3];
+			accounts: [
+				{
+					name: "stakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "clockSysvar";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "authorizedPubkey";
+					writable: false;
+					signer: true;
+				},
+			];
+			name: "deactivate";
+			args: [
+				{
+					name: "index";
+					type: "u32";
+				},
+				{
+					name: "stakePubkey";
+					type: "pubkey";
+				},
+				{
+					name: "authorizedPubkey";
+					type: "pubkey";
+				},
+			];
+		},
+		{
+			discriminator: [4];
+			accounts: [
+				{
+					name: "stakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "votePubkey";
+					writable: false;
+					signer: false;
+				},
+				{
+					name: "clockSysvar";
+					writable: false;
+					signer: false;
+				},
+				{
+					name: "sysvarStakeHistory";
+					writable: false;
+					signer: false;
+				},
+				{
+					name: "stakeConfig";
+					writable: false;
+					signer: false;
+				},
+				{
+					name: "authorizedPubkey";
+					writable: false;
+					signer: true;
+				},
+			];
+			name: "delegate";
+			args: [
+				{
+					name: "index";
+					type: "u32";
+				},
+			];
+		},
+		{
+			discriminator: [5];
+			accounts: [
+				{
+					name: "stakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "sourceStakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "clockSysvar";
+					writable: false;
+					signer: false;
+				},
+				{
+					name: "sysvarStakeHistory";
+					writable: false;
+					signer: false;
+				},
+				{
+					name: "authorizedPubkey";
+					writable: false;
+					signer: true;
+				},
+			];
+			name: "merge";
+			args: [
+				{
+					name: "index";
+					type: "u32";
+				},
+			];
+		},
+		{
+			discriminator: [6];
+			accounts: [
+				{
+					name: "stakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "splitStakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "authorizedPubkey";
+					writable: false;
+					signer: true;
+				},
+			];
+			name: "split";
+			args: [
+				{
+					name: "index";
+					type: "u32";
+				},
+				{
+					name: "lamports";
+					type: "u64";
+				},
+			];
+		},
+		{
+			discriminator: [7];
+			accounts: [
+				{
+					name: "stakePubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "toPubkey";
+					writable: true;
+					signer: false;
+				},
+				{
+					name: "clockSysvar";
+					writable: false;
+					signer: false;
+				},
+				{
+					name: "sysvarStakeHistory";
+					writable: false;
+					signer: false;
+				},
+				{
+					name: "authorizedPubkey";
+					writable: false;
+					signer: true;
+				},
+				{
+					name: "custodianPubkey";
+					writable: false;
+					signer: true;
+					optional: true;
+				},
+			];
+			name: "withdraw";
+			args: [
+				{
+					name: "index";
+					type: "u32";
+				},
+				{
+					name: "lamports";
+					type: "u64";
+				},
+			];
 		},
 	];
 };

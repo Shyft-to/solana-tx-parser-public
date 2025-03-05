@@ -1,19 +1,31 @@
 {
-    "extends": "./tsconfig.base.json",
-    "compilerOptions": {
-      "moduleResolution": "node",
-      "module": "commonjs",
-      "types": ["mocha", "chai", "node"]
-    },
-    "include": ["src", "tests"],
-    "typedocOptions": {
-      "entryPoints": ["./src/index.ts"],
-      "entryPointStrategy": "expand",
-      "plugin": "typedoc-plugin-markdown",
-      "excludeExternals": true,
-      "readme": "none",
-      "externalPattern": ["**/node_modules/**"],
-      "excludePrivate": true,
-      "out": "docs"
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "types": [
+      "mocha",
+      "chai",
+      "node"
+    ]
+  },
+  "include": [
+    "src",
+    "tests",
+    "cli"
+  ],
+  "typedocOptions": {
+    "entryPoints": [
+      "./src/index.ts"
+    ],
+    "entryPointStrategy": "expand",
+    "plugin": "typedoc-plugin-markdown",
+    "excludeExternals": true,
+    "readme": "none",
+    "externalPattern": [
+      "**/node_modules/**"
+    ],
+    "excludePrivate": true,
+    "out": "docs"
   }
-}  
+}
