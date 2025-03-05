@@ -1,13 +1,15 @@
 {
-    "extends": "./tsconfig.base.json",
-    "compilerOptions": {
-      "moduleResolution": "node",
-      "module": "es2022",
-      "target": "es2019",
-      "outDir": "dist/esm/",
-      "rootDir": "./src",
-      "declaration": false,
-      "declarationMap": false,
-    },
-    "include": ["src"],
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "es2022",
+    "target": "es2021",
+    "outDir": "dist/esm/",
+    "rootDir": "./src",
+    "declaration": false,
+    "declarationMap": false,
+  },
+  "include": [
+    "src"
+  ],
 }
