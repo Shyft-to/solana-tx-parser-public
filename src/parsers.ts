@@ -83,6 +83,8 @@ function flattenIdlAccounts(accounts: IdlInstructionAccountItem2[], prefix?: str
 export class SolanaParser {
 	private instructionParsers: InstructionParsers;
 
+	private instructionDecoders: Map<PublicKey | string, BorshInstructionCoder>;
+
 	/**
 	 * Initializes parser object
 	 * `SystemProgram`, `TokenProgram` and `AssociatedTokenProgram` are supported by default
@@ -91,6 +93,8 @@ export class SolanaParser {
 	 * @param parsers list of pairs (programId, custom parser)
 	 */
 	constructor(programInfos: ProgramInfoType[], parsers?: InstructionParserInfo[]) {
+		this.instructionDecoders = new Map();
+		this.instructionParsers = new Map();
 		const standardParsers: InstructionParserInfo[] = [
 			[SystemProgram.programId.toBase58(), decodeSystemInstruction],
 			[TOKEN_PROGRAM_ID.toBase58(), decodeTokenInstruction],
@@ -99,12 +103,13 @@ export class SolanaParser {
 			[COMPUTE_BUDGET_PROGRAM_ID.toBase58(), decodeComputeBudgetInstruction],
 			[StakeProgram.programId.toBase58(), decodeStakeInstruction],
 		];
-		let result: InstructionParsers;
-		parsers = parsers || [];
+
 		for (const programInfo of programInfos) {
-			parsers.push(this.buildIdlParser(new PublicKey(programInfo.programId), programInfo.idl));
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+			this.addParserFromIdl(new PublicKey(programInfo.programId), programInfo.idl);
 		}
 
+		let result: InstructionParsers;
 		if (!parsers) {
 			result = new Map(standardParsers);
 		} else {
@@ -118,7 +123,7 @@ export class SolanaParser {
 			}
 		}
 
-		this.instructionParsers = result;
+		result.forEach((parser, key) => this.instructionParsers.set(key, parser));
 	}
 
 	/**
@@ -138,8 +143,10 @@ export class SolanaParser {
 	addParserFromIdl(programId: PublicKey | string, idl: Idl) {
 		try {
 			const convertedIdl = convertLegacyIdlToV30(idl, programId.toString());
+			this.instructionDecoders.set(programId, new BorshInstructionCoder(convertedIdl));
 			this.instructionParsers.set(...this.buildIdlParser(new PublicKey(programId), convertedIdl));
 		} catch (e) {
+			// eslint-disable-next-line no-console
 			console.error("Failed to build parser from IDL of programId: ", programId, ", error:", e);
 		}
 	}
@@ -150,6 +157,7 @@ export class SolanaParser {
 
 	retrieveParserReadyProgramIds(): Array<string> {
 		const programIds = Array.from(this.instructionParsers.keys());
+		// eslint-disable-next-line newline-before-return
 		return programIds.map((key) => key.toString());
 	}
 
@@ -219,9 +227,20 @@ export class SolanaParser {
 		if (!this.instructionParsers.has(instruction.programId.toBase58())) {
 			return this.buildUnknownParsedInstruction(instruction.programId, instruction.keys, instruction.data);
 		} else {
-			const parser = this.instructionParsers.get(instruction.programId.toBase58()) as ParserFunction<I, IxName>;
+			try {
+				const parser = this.instructionParsers.get(instruction.programId.toBase58()) as ParserFunction<I, IxName>;
+				const decoder = this.instructionDecoders.get(instruction.programId.toBase58()) as BorshInstructionCoder;
 
-			return parser(instruction);
+				return parser(instruction, decoder);
+			} catch (error) {
+				// eslint-disable-next-line no-console
+				console.error("Parser does not matching the instruction args", {
+					programId: instruction.programId.toBase58(),
+					instructionData: instruction.data.toString("hex"),
+				});
+
+				return this.buildUnknownParsedInstruction(instruction.programId, instruction.keys, instruction.data);
+			}
 		}
 	}
 
