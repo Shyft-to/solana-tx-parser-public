@@ -48,6 +48,19 @@ import { IDL as JupiterIdl, Jupiter } from "./idl/jupiter"; // idl and types fil
 const rpcConnection = new Connection("https://jupiter.genesysgo.net");
 const txParser = new SolanaParser([{ idl: JupiterIdl as unknown as Idl, programId: "JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo" }]);
 ```
+
+When using IDL files which are decoded by `"@coral-xyz/anchor"` (applicable for version ^2.0.0)
+```ts
+import { Idl } from "@coral-xyz/anchor";
+import { PublicKey, Connection } from "@solana/web3.js";
+import { SolanaParser } from "@shyft-to/solana-transaction-parser";
+import { IDL as JupiterIdl, Jupiter } from "./idl/jupiter"; // assuming IDL is decoded by "@coral-xyz/anchor"
+
+const rpcConnection = new Connection("https://jupiter.genesysgo.net");
+const txParser = new SolanaParser([{ idl: JupiterIdl as Idl, programId: "JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo" }]);
+```
+
+
 Second step: parse transaction by tx hash:
 ```ts
 const parsed = await txParser.parseTransaction(
