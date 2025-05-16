@@ -24,9 +24,6 @@
 - Via NPM:
 `npm i @shyft-to/solana-transaction-parser`
 
-- Via github:
-`npm i git+https://github.com/shyft-to/solana-tx-parser-public`.
-
 <br>
 
 ## What this tool can be used for
@@ -184,7 +181,7 @@ Steps of parsing are following:
 
 
 ### CPI flattening 
-Function: [flattenTransactionResponse](./src/helpers.ts#L87)  
+Function: [flattenTransactionResponse](./src/helpers.ts#L121)  
 Can be only done with TransactionResponse/ParsedTransactionWithMeta objects because we need `transaction.meta.innerInstructions` field.
 `transaction.meta.innerInstructions` is a list of objects of following structure: 
 ```ts
@@ -199,7 +196,7 @@ Finally, we check that `result.instructions.length === input.instructions.length
 We can call index of result.instructions **callId** - index of call in the whole transaction. Same **callId** will be used in the logs part
 
 ### Parsing transaction logs 
-Function: [parseLogs](./src/helpers.ts#L143)  
+Function: [parseLogs](./src/helpers.ts#L380)  
 Working with Solana's logs is not a trivial task - to determine which program emitted current log line we have to restore call stack, check call depth and set correct **callId** for each log line. parseLogs function implements all that stuff (with call depth and call id checks): 
 1. Iterate over logs
 2. Check log type (invoke/return/error/program log/program data) using regex
